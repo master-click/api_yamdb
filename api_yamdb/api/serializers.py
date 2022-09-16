@@ -51,16 +51,12 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    # еще пагинация здесь!
     rating = serializers.SerializerMethodField()
-    genre = GenreSerializer(read_only=True, many=True)  # проверки должны быть
-    category = CategorySerializer(read_only=True, many=False)  # не так,
-    # валидации должны быть
+    genre = GenreSerializer(read_only=True, many=True)
+    category = CategorySerializer(read_only=True, many=False)
 
     def get_rating(self, title):
         rating = title.reviews.aggregate(Avg('score')).get('score__avg')
-        # генерится словарь и мы берем его элемент
-        # для списка может лучше annotate сделать - экономия запросов?
         return rating
 
     class Meta:

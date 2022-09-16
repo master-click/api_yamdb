@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, viewsets
 from rest_framework.pagination import PageNumberPagination
-цfrom rest_framework.permissions import IsAdminUser
 from reviews.models import Category, Genre, Review, Title
 
 from .mixins import CustomViewSet
@@ -64,11 +63,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     pagination_class = PageNumberPagination
     permission_classes = (IsOwnerAdminModeratorOrReadOnly,)
-    # или на уровне проекта добавить
-#    filter_backends
-#    search_fields
-#    filterset_fields
-#    ordering_fields
 
     def get_title(self):
         title_id = self.kwargs.get('title_id')

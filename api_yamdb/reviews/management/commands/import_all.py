@@ -14,7 +14,7 @@ FILE_TO_MODEL = {
     4: ['titles.csv', Title],
     5: ['review.csv', Review],
     6: ['comments.csv', Comment],
-    7: ['genre_title', TitleGenre]
+    7: ['genre_title.csv', TitleGenre]
 }
 
 FIELDS = ['author', 'category', 'role']  # fieldsname для добавления '_id'
