@@ -4,31 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-User = get_user_model()
-
-
-class Category(models.Model):
-    name = models.CharField(max_length=256)
-    slug = models.SlugField(unique=True, max_length=50)
-    # реализовать ^[-a-zA-Z0-9_]+$
-
-
-class Genre(models.Model):
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True)
-
-
-class Title(models.Model):
-    name = models.CharField(max_length=200)
-    year = models.IntegerField(validators=[
-        MaxValueValidator(datetime.now().year)])
-    description = models.TextField()
-    genre = models.ManyToManyField(Genre,
-                                   related_name='titles',
-                                   through='TitleGenre')
-    # through здесь необязательно?
-    category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, null=True, related_name='titles')
+User = get_user_model() # поменять!
 
 
 class Review(models.Model):
@@ -68,15 +44,46 @@ class Comment(models.Model):
         ordering = ['-pub_date']
 
 
-class TitleGenre(models.Model):
-    title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='follower',)
-    genre = models.ForeignKey(
-        Genre, on_delete=models.CASCADE, related_name='following',)
+class Category(models.Model):
+    name = models.CharField(max_length=256)
+    slug = models.SlugField(max_length=50, unique=True)
 
     def __str__(self):
-        return f'{self.title} {self.genre}'
+        return self.name
 
+
+class Genre(models.Model):
+    name = models.CharField(max_length=256)
+    slug = models.SlugField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Title(models.Model):
+    name = models.CharField(max_length=256)
+    year = models.IntegerField(validators=[
+        MaxValueValidator(datetime.now().year)])
+    category = models.ForeignKey(
+        Category, on_delete=models.SET_NULL,
+        related_name="titles", blank=True, null=True, related_name='titles',)
+    genre = models.ManyToManyField(
+        Genre, through='TitleGenre')
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class TitleGenre(models.Model):
+    title = models.ForeignKey(
+        Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(
+        Genre, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.title}, жанр - {self.genre}'
+    
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["title", "genre"],

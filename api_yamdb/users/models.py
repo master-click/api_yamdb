@@ -1,33 +1,44 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.models import Group, Permission
+
+from django.db import models
 
 
-GROUP_SELECTION = [
-    'user', 'moderator', 'admin'
-]
+class User(AbstractUser):
+    """Добавление дополнительных полей."""
+    ADMIN = 'admin'
+    MODERATOR = 'moderator'
+    USER = 'user'
 
-for group_name in GROUP_SELECTION:
-    group = Group.objects.create (name = group_name) # Добавить группу разрешений
+    ROLE = (
+        (ADMIN, 'Администратор'),
+        (USER, 'Аутентифицированный пользователь'),
+        (MODERATOR, 'Модератор'),
+    )
+    role = models.CharField('Роль',
+                            max_length=35,
+                            choices=ROLE,
+                            default=USER
+                            )
+    email = models.EmailField(unique=True)
+    bio = models.TextField('Краткая информация',
+                           blank=True,
+                           max_length=255
+                           )
 
+    class Meta:
+        ordering = ('role',)
+        verbose_name = 'Пользователи'
 
+    @property
+    def is_admin(self):
+        return self.is_superuser or self.role == self.ADMIN
 
-class CustomUser(AbstractUser):
-    # email наследуется от AbstractUser
- #   group = models.CharField(max_length=20, choices=GROUP_SELECTION)
-    password = models.CharField(required=False)
-    # email = models.EmailField(unique = True)
-    REQUIRED_FIELDS = ['email', 'username']
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR
 
+    @property
+    def is_user(self):
+        return self.role == self.USER
 
-
-
-from django.core.mail import send_mail
-from config import settings
-
-def email_user(self, subject, message, from_email=settings.DEFAULT_FROM_EMAIL, **kwargs):
-    send_mail(subject, message, from_email, [self.email], fail_silently=False, **kwargs)
-
-
-в сеттингс надо
-AUTH_EMAIL_VERIFICATION
