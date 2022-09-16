@@ -3,17 +3,7 @@ from rest_framework import routers
 
 from .views import (CategoryViewSet, CommentViewSet, GenreViewSet,
                     ReviewViewSet, TitletViewSet)
-                    
-from rest_framework import routers
-from .views import CategoryViewSet, GenreViewSet, TitleViewSet
-from django.urls import include, path
-from rest_framework.routers import SimpleRouter
 
-from .views import (UsersViewSet, signup, get_token)
-
-from rest_framework import routers
-from .views import CategoryViewSet, GenreViewSet, TitleViewSet
-from django.urls import include, path
 from rest_framework.routers import SimpleRouter
 
 from .views import (UsersViewSet, signup, get_token)
