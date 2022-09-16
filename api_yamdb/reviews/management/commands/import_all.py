@@ -2,19 +2,10 @@ import csv
 import os
 
 from django.core.management.base import BaseCommand, CommandError
-from reviews.models import Category, Comment, Genre, Review, Title, User
+from reviews.models import (Category, Comment, Genre, Review, Title,
+                            TitleGenre, User)
 
 import api_yamdb.settings as settings
-
-# команда будет доступна, когда приложение review будет зарегестрировано
-# в INSTALLED_APPS
-# валидаторы на уровне модели
-# последовательность ввода важна
-# где ссылка на др модель - важен сам объект
-# нужно создать ридми
-# не через for а как-то по другому, чтобы не останавливался
-# нужно создавать промежуточные таблицы (жанр_произведение)
-
 
 FILE_TO_MODEL = {
     1: ['category.csv', Category],
@@ -23,7 +14,7 @@ FILE_TO_MODEL = {
     4: ['titles.csv', Title],
     5: ['review.csv', Review],
     6: ['comments.csv', Comment],
-    # 7: ['genre_title', GEnre_Title]
+    7: ['genre_title', TitleGenre]
 }
 
 FIELDS = ['author', 'category', 'role']  # fieldsname для добавления '_id'
@@ -55,15 +46,3 @@ class Command(BaseCommand):
         for i in range(1, len(FILE_TO_MODEL)):
             filename, model = FILE_TO_MODEL.get(i)
             self.upload_to_db(filename, model)
-
-
-#  сдулать список headers
-# первый ряд надо отр
-# надо испортировать в базу данных по моделям
-# надо проверять данные перед отправкой - сериализаторы помогут??
-# как если бы создавали данные? и как чтобы не оставливал работу при ошибке
-# -есть там какой-то подход забыл название.
-# как распределеить по моделям? вручную?
-
-# нужен специальный сериализатор для каждой модели?
-# десериализаторы
