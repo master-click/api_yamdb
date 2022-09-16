@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-
+     
 class AdminOnly(permissions.BasePermission):
     """Права доступа принадлежат администратору."""
     def has_permission(self, request, view):

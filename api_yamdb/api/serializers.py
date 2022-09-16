@@ -1,3 +1,7 @@
+from rest_framework import serializers
+
+from reviews.models import Title, Genre, Category
+
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
@@ -5,6 +9,33 @@ from rest_framework.exceptions import ValidationError
 
 from users.models import User
 from .validators import validate_username, validate_email
+
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Genre
+        fields = '__all__'
+
+
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(
+        slug_field='slug', many=True, queryset=Genre.objects.all()
+    )
+    category = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Category.objects.all()
+    )
+
+    class Meta:
+        model = Title
+        fields = '__all__'
 
 
 class TokenSerializer(serializers.ModelSerializer):
