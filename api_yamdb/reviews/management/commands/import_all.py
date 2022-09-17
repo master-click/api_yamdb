@@ -35,11 +35,11 @@ class Command(BaseCommand):
                     _, created = model.objects.get_or_create(**row)
                 except Exception as e:
                     raise CommandError(
-                        f'Ошибка ввода данных из {filename}: {str(e)}')
+                        f'Ошибка ввода данных из {filename}, {row} {str(e)}')
                 if created == 1:
-                    text = f'Добавлены данные: {row}'
+                    text = f'Добавлены данные: {filename}'
                 else:
-                    text = f'Получены данные: {row}'
+                    text = f'Получены данные: {filename}'
                 self.stdout.write(self.style.SUCCESS(text))
 
     def handle(self, *args, **options):

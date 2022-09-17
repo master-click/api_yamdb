@@ -3,7 +3,10 @@ from rest_framework.exceptions import PermissionDenied
 
 
 class AdminOnly(permissions.BasePermission):
-    """Права доступа принадлежат администратору."""
+    """
+    Права доступа принадлежат администратору.
+    Users
+    """
     def has_permission(self, request, view):
         return (
             request.user
@@ -19,8 +22,11 @@ class AdminOnly(permissions.BasePermission):
         )
 
 
-class IsAdminOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
-    """Права на создание и доступа к объекту принадлежат администратору."""
+class IsAdminOrReadOnly(permissions.BasePermission):
+    """
+    Права на создание и доступа к объекту принадлежат администратору.
+    Category, Genre, Title
+    """
     def has_permission(self, request, view):
         return (
             not request.method == 'POST' or
@@ -30,14 +36,14 @@ class IsAdminOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
         )
 
     def has_object_permission(self, request, view, obj):
-        return (
+        return ((
             request.user
             and request.user.is_authenticated
             and request.user.is_admin
-        )
+        ) or request.method == 'GET')
 
 
-class IsOwnerAdminModeratorOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
+class IsOwnerAdminModeratorOrReadOnly(permissions.BasePermission):
     """
     Доступ на чтение - всем, добавление - авторизованным пользователям,
     изменение объектов - авторам этих объектов, модераторам или администраторам
@@ -49,8 +55,8 @@ class IsOwnerAdminModeratorOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
         )
 
     def has_object_permission(self, request, view, obj):
-        return (
+        return ((
             request.method == 'POST' or
             obj.author == request.user or
             request.user.role != 'user'
-        )
+        ) or request.method == 'GET')

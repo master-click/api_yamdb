@@ -70,7 +70,7 @@ class Review(models.Model):
     class Meta:
         constraints = [models.UniqueConstraint(fields=["author", "title"],
                        name='unique_review'),]
-        ordering = ['-pub_date']
+        ordering = ['pub_date']
     # required - text, score
 
 

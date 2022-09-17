@@ -18,17 +18,29 @@ from .permissions import (AdminOnly, IsAdminOrReadOnly,
                           IsOwnerAdminModeratorOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
                           CustomUserSerializer, GenreSerializer,
-                          ReviewSerializer, SignUpSerializer, TitleSerializer,
+                          ReviewSerializer, SignUpSerializer,
+                          TitleCreateSerializer, TitleSerializer,
                           TokenSerializer)
+from .filtersets import TitleFilterSet
 
 
 class TitletViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().order_by('year')
-    serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     permission_classes = (IsAdminOrReadOnly,)
-    search_fields = ('name', 'year', 'category__slug', 'genre__slug')
     pagination_class = PageNumberPagination
+    filter_class = TitleFilterSet
+
+
+
+    def get_serializer_class(self):
+        """
+        Задает разные сериализаторы для создания, изменения
+        и других действий
+        """
+        if self.action == ('create' or 'update'):
+            return TitleCreateSerializer
+        return TitleSerializer
 
 
 class CategoryViewSet(CustomViewSet):
@@ -46,7 +58,7 @@ class GenreViewSet(CustomViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = PageNumberPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
+    search_fields = ('name', )
     lookup_field = 'slug'
 
 

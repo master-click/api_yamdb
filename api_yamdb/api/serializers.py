@@ -82,7 +82,54 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
         fields = (
             'id', 'name', 'year', 'rating', 'description', 'genre', 'category')
+
+
+class TitleCreateSerializer(serializers.ModelSerializer):
+    genre = SlugRelatedField(many=True, slug_field='slug',
+                             queryset=Genre.objects.all())
+    category = SlugRelatedField(many=False, slug_field='slug',
+                                queryset=Category.objects.all())
+
+    class Meta:
+        model = Title
+        fields = (
+            'id', 'name', 'year', 'description', 'genre', 'category')
         required_fields = ('name', 'year', 'genre', 'category')
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)  # доразобраться
+        response['category'] = CategorySerializer(instance.category).data
+        for entry in instance.genre.all():
+            genre = GenreSerializer(entry).data
+            response['genre'].append(genre)
+        return response
+
+#    def update(self, instance, validated_data):
+#        instance.category = validated_data['category']
+#        [instance.genre.add(x) for x in validated_data['genre']]
+#        return instance
+
+
+#    def create(self, validated_data):
+#        data = validated_data.pop('category')
+#        title = Title.objects.create(**validated_data)
+#        Category.objects.update(title=title, **data)
+#        return title
+
+    def update(self, instance, validated_data):
+        if 'category' in validated_data:
+            data = validated_data.pop('category')
+            instance = Title.objects.update(**validated_data)
+            Category.objects.update(title=instance, **data)
+        return instance
+
+
+#        album = Album.objects.create(**validated_data)
+#        for track_data in tracks_data:
+#            Track.objects.create(album=album, **track_data)
+#        return album
+
+
 
 
 class TokenSerializer(serializers.ModelSerializer):
