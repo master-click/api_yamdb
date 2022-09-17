@@ -12,12 +12,12 @@ FILE_TO_MODEL = {
     2: ['genre.csv', Genre],
     3: ['users.csv', User],
     4: ['titles.csv', Title],
-    5: ['review.csv', Review],
-    6: ['comments.csv', Comment],
-    7: ['genre_title.csv', TitleGenre]
+    6: ['review.csv', Review],
+    7: ['comments.csv', Comment],
+    5: ['genre_title.csv', TitleGenre]
 }
 
-FIELDS = ['author', 'category', 'role']  # fieldsname для добавления '_id'
+FIELDS = ['author', 'category']  # fieldsname для добавления '_id'
 
 
 class Command(BaseCommand):

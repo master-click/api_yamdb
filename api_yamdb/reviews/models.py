@@ -46,7 +46,7 @@ class TitleGenre(models.Model):
 
     def __str__(self):
         return f'{self.title}, жанр - {self.genre}'
-    
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["title", "genre"],
@@ -69,8 +69,7 @@ class Review(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["author", "title"],
-                       name='unique_review')]
-        # только один отзыв на title на одно произведение
+                       name='unique_review'),]
         ordering = ['-pub_date']
     # required - text, score
 
