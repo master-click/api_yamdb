@@ -13,6 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
+from .filtersets import TitleFilterSet
 from .mixins import CustomViewSet
 from .permissions import (AdminOnly, IsAdminOrReadOnly,
                           IsOwnerAdminModeratorOrReadOnly)
@@ -21,7 +22,6 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           ReviewSerializer, SignUpSerializer,
                           TitleCreateSerializer, TitleSerializer,
                           TokenSerializer)
-from .filtersets import TitleFilterSet
 
 
 class TitletViewSet(viewsets.ModelViewSet):
@@ -31,14 +31,12 @@ class TitletViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     filter_class = TitleFilterSet
 
-
-
     def get_serializer_class(self):
         """
         Задает разные сериализаторы для создания, изменения
         и других действий
         """
-        if self.action == ('create' or 'update'):
+        if self.request.method in ('POST', 'PATCH',):
             return TitleCreateSerializer
         return TitleSerializer
 
@@ -67,19 +65,19 @@ class ReviewViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     permission_classes = (IsOwnerAdminModeratorOrReadOnly,)
 
-    def get_title(self):
+    def title_obj(self):
         title_id = self.kwargs.get('title_id')
         title = get_object_or_404(Title, pk=title_id)
         return title
 
     def get_queryset(self):
-        title = self.get_title()
+        title = self.title_obj()
         queryset = title.reviews.select_related('author').all()
         return queryset
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user,
-                        title=self.get_title())
+                        title=self.title_obj())
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -87,19 +85,19 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = (IsOwnerAdminModeratorOrReadOnly,)
     # или на уровне проекта добавить
 
-    def get_review(self):
+    def review_obj(self):
         review_id = self.kwargs.get('review_id')
         review = get_object_or_404(Review, pk=review_id)
         return review
 
     def get_queryset(self):
-        review = self.get_review()
+        review = self.review_obj()
         queryset = review.comments.select_related('author').all()
         return queryset
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user,
-                        post=self.get_review())
+                        review=self.review_obj())
 
 
 class UsersViewSet(viewsets.ModelViewSet):

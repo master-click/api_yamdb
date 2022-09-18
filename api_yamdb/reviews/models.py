@@ -3,6 +3,8 @@ from datetime import datetime
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 
 User = get_user_model() # поменять!
 
@@ -67,10 +69,20 @@ class Review(models.Model):
     def __str__(self):   # на всякий случай
         return self.text
 
+    def clean(self):
+        if Review.objects.filter(title=self.title, author=self.author).exists():
+            raise IntegrityError(
+                'нельзя создавать два отзывы на одно произведения')
+
+    def save(self, *args, **kwargs):  # надо ли?
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
     class Meta:
-        constraints = [models.UniqueConstraint(fields=["author", "title"],
-                       name='unique_review'),]
-        ordering = ['pub_date']
+        unique_together = (('title', 'author'),)
+#        constraints = [models.UniqueConstraint(fields=["author", "title"],
+#                       name='unique_review'),]
+#        ordering = ['-pub_date']
     # required - text, score
 
 
@@ -86,4 +98,4 @@ class Comment(models.Model):
         return self.text
 
     class Meta:
-        ordering = ['-pub_date']
+        ordering = ['pub_date']
