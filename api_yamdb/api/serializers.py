@@ -12,6 +12,7 @@ from .validators import validate_email, validate_username
 
 User = get_user_model()
 
+
 class CommentSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field='username',
                               read_only=True,

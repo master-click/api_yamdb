@@ -16,6 +16,9 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['name']
+
 
 class Genre(models.Model):
     name = models.CharField(max_length=256)
@@ -23,6 +26,9 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ['name']
 
 
 class Title(models.Model):
@@ -39,6 +45,9 @@ class Title(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['category', 'name']
+
 
 class TitleGenre(models.Model):
     title = models.ForeignKey(
@@ -50,6 +59,7 @@ class TitleGenre(models.Model):
         return f'{self.title}, жанр - {self.genre}'
 
     class Meta:
+        ordering = ['title', 'genre']
         constraints = [
             models.UniqueConstraint(fields=["title", "genre"],
                                     name='unique_genre')
