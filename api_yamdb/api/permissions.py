@@ -59,5 +59,6 @@ class IsOwnerAdminModeratorOrReadOnly(permissions.BasePermission):
             request.method == 'GET' or
             (request.user.is_authenticated and
             (obj.author == request.user or
-            request.user.role != 'user')
+            request.user.role != 'user'
+            or request.user.is_admin)
             ))
