@@ -1,10 +1,9 @@
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
-from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import IntegrityError, models
 
 User = get_user_model() # поменять!
 
@@ -14,7 +13,7 @@ class Category(models.Model):
     slug = models.SlugField(max_length=50, unique=True)
 
     def __str__(self):
-        return self.name
+        return self.slug
 
 
 class Genre(models.Model):
@@ -22,7 +21,7 @@ class Genre(models.Model):
     slug = models.SlugField(max_length=50, unique=True)
 
     def __str__(self):
-        return self.name
+        return self.slug
 
 
 class Title(models.Model):
@@ -69,21 +68,16 @@ class Review(models.Model):
     def __str__(self):   # на всякий случай
         return self.text
 
-    def clean(self):
+    def unique_review(self):
         if Review.objects.filter(title=self.title, author=self.author).exists():
             raise IntegrityError(
                 'нельзя создавать два отзывы на одно произведения')
 
     def save(self, *args, **kwargs):  # надо ли?
-        self.full_clean()
+        if Review.objects.filter(pk=self.pk).exists():
+            return super().save(*args, **kwargs)
+        self.unique_review()
         return super().save(*args, **kwargs)
-
-    class Meta:
-        unique_together = (('title', 'author'),)
-#        constraints = [models.UniqueConstraint(fields=["author", "title"],
-#                       name='unique_review'),]
-#        ordering = ['-pub_date']
-    # required - text, score
 
 
 class Comment(models.Model):

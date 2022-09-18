@@ -1,11 +1,14 @@
 import csv
 import os
+from re import A
 
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
-from reviews.models import (Category, Comment, Genre, Review, Title,
-                            TitleGenre, User)
+from reviews.models import Category, Comment, Genre, Review, Title, TitleGenre
 
 import api_yamdb.settings as settings
+
+User = get_user_model()
 
 FILE_TO_MODEL = {
     1: ['category.csv', Category],
@@ -21,7 +24,7 @@ FIELDS = ['author', 'category']  # fieldsname для добавления '_id'
 
 
 class Command(BaseCommand):
-    help = 'Загружает данные Comments в базу данных'
+    help = 'Загружает данные в базу данных'
 
     def upload_to_db(self, filename, model):
         file_path = os.path.join(
@@ -31,18 +34,23 @@ class Command(BaseCommand):
             csv_reader.fieldnames = [
                 n + '_id' if n in FIELDS else n for n in csv_reader.fieldnames]
             for row in csv_reader:
+                row_id = row.pop('id')
                 try:
-                    _, created = model.objects.get_or_create(**row)
-                except Exception as e:
-                    raise CommandError(
-                        f'Ошибка ввода данных из {filename}, {row} {str(e)}')
-                if created == 1:
-                    text = f'Добавлены данные: {filename}'
-                else:
-                    text = f'Получены данные: {filename}'
-                self.stdout.write(self.style.SUCCESS(text))
+                    obj = model.objects.get(**row)
+                    self.stdout.write(self.style.SUCCESS(
+                        f'данные уже в базе {filename} - {row}'))
+                except model.DoesNotExist:
+                    row['id'] = row_id
+                    try:
+                        obj = model(**row)
+                        obj.save()
+                    except Exception as e:
+                        raise CommandError(
+                            f'Ошибка ввода данных из {filename}, {row} {str(e)}')
+                    self.stdout.write(self.style.SUCCESS(
+                        f'добавлены данные {filename} - {row}'))
 
     def handle(self, *args, **options):
-        for i in range(1, len(FILE_TO_MODEL)):
+        for i in range(1, len(FILE_TO_MODEL)+1):
             filename, model = FILE_TO_MODEL.get(i)
             self.upload_to_db(filename, model)

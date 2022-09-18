@@ -24,37 +24,22 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-#    title = serializers.PrimaryKeyRelatedField(
-#        write_only=True, queryset=Title.objects.all())
+
     author = SlugRelatedField(slug_field='username',
                               read_only=True,
                               default=serializers.CurrentUserDefault())
 
     def validate(self, data):
         request = self.context.get("request")
-        if request.method not in ('POST', 'PATCH',):
+        if request.method != 'POST':
             return data
-        author = request.user
         title_id = int(self.context['view'].kwargs.get('title_id'))
-       # title = Title.objects.get(pk=title_id)
         author = request.user
         if Review.objects.filter(title=title_id, author=author).exists():
             raise serializers.ValidationError(
                 'Нельзя создавать больше 1 отзыва на произведение'
             )
         return data
-
-    def create(self, validated_data):   # нужно ли?
-        review = Review(**validated_data)  # валидацию не пройдут - не все поля требуемые заполнены
-        review.title_id = int(self.context['view'].kwargs.get('title_id'))
-        # title = Title.objects.get(pk=title_id)
-        review.save()
-        return review
-
-    def update(self, instance, validated_data):  # нужно ли?
-        instance.title_id = int(self.context['view'].kwargs.get('title_id'))
-        # title = Title.objects.get(pk=title_id)
-        return super().update(instance, validated_data)
 
     class Meta:
         model = Review
@@ -63,6 +48,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Genre
         fields = ('name', 'slug')
