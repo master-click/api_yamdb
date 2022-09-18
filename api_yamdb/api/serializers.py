@@ -70,7 +70,7 @@ class TitleGenreSerializer(serializers.ModelSerializer):
     title = SlugRelatedField(slug_field='title',
                              queryset=Review.objects.all())
     genre = SlugRelatedField(slug_field='slug',
-                             queryset=Genre.objects.all())   # список - many=True
+                             queryset=Genre.objects.all())  # список-many=True
     validators = [UniqueTogetherValidator(queryset=TitleGenre.objects.all(),
                                           fields=('title', 'genre'))]
 
