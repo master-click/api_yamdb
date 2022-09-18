@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from posts.models import User
+from .models import User
 
 from .permissions import IsOwnerOfObject
 from .serializers import UserRegistrationSerializer, UserSerializer
