@@ -1,6 +1,5 @@
 import csv
 import os
-from re import A
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
@@ -37,8 +36,9 @@ class Command(BaseCommand):
                 row_id = row.pop('id')
                 try:
                     obj = model.objects.get(id=row_id)
-                    # через id сделал, почему была проблема для ревью и комментария,
-                    # по всем данным, а не только по id при повторном нажатии выходила,
+                    # через id сделал, почему была проблема для ревью
+                    # и комментария, по всем данным, а не только по id
+                    # при повторном нажатии выходила,
                     # ошибка по тому что нарушена уникальность id
                     self.stdout.write(self.style.SUCCESS(
                         f'данные уже в базе {filename} - {row}'))
@@ -49,11 +49,12 @@ class Command(BaseCommand):
                         obj.save()
                     except Exception as e:
                         raise CommandError(
-                            f'Ошибка ввода данных из {filename}, {row} {str(e)}')
+                            f'Ошибка ввода данных из {filename}, '
+                            f'{row} {str(e)}')
                     self.stdout.write(self.style.SUCCESS(
                         f'добавлены данные {filename} - {row}'))
 
     def handle(self, *args, **options):
-        for i in range(1, len(FILE_TO_MODEL)+1):
+        for i in range(1, len(FILE_TO_MODEL) + 1):
             filename, model = FILE_TO_MODEL.get(i)
             self.upload_to_db(filename, model)

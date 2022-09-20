@@ -15,7 +15,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role', 'password')
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role', 'password')
         required_fields = ('username', 'password')
         write_only_fields = ('password',)
 

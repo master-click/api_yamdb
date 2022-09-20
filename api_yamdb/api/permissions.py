@@ -1,5 +1,4 @@
 from rest_framework import permissions
-from rest_framework.exceptions import PermissionDenied
 
 
 class AdminOnly(permissions.BasePermission):
@@ -14,7 +13,7 @@ class AdminOnly(permissions.BasePermission):
             and request.user.is_admin
         )
 
-    def has_object_permission(self, request, view, obj):  # вроде можно убрать про object
+    def has_object_permission(self, request, view, obj):
         return (
             request.user
             and request.user.is_authenticated
@@ -29,11 +28,10 @@ class IsAdminOrReadOnly(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         return (
-            not request.method == 'POST' or
-            (request.user
-            and request.user.is_authenticated
-            and request.user.is_admin)
-        )
+            not request.method == 'POST'
+            or (request.user
+                and request.user.is_authenticated
+                and request.user.is_admin))
 
     def has_object_permission(self, request, view, obj):
         return ((
@@ -50,15 +48,15 @@ class IsOwnerAdminModeratorOrReadOnly(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         return (
-            not request.method == 'POST' or
-            request.user.is_authenticated
+            not request.method == 'POST'
+            or request.user.is_authenticated
         )
 
     def has_object_permission(self, request, view, obj):
         return (
-            request.method == 'GET' or
-            (request.user.is_authenticated and
-            (obj.author == request.user or
-            request.user.role != 'user'
-            or request.user.is_admin)
-            ))
+            request.method == 'GET'
+            or (request.user.is_authenticated
+                and (obj.author == request.user
+                     or request.user.role != 'user'
+                     or request.user.is_admin))
+        )

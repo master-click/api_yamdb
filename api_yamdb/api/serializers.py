@@ -12,6 +12,7 @@ from .validators import validate_email, validate_username
 
 User = get_user_model()
 
+
 class CommentSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field='username',
                               read_only=True,
@@ -69,7 +70,7 @@ class TitleGenreSerializer(serializers.ModelSerializer):
     title = SlugRelatedField(slug_field='title',
                              queryset=Review.objects.all())
     genre = SlugRelatedField(slug_field='slug',
-                             queryset=Genre.objects.all())   # список - many=True
+                             queryset=Genre.objects.all())  # список-many=True
     validators = [UniqueTogetherValidator(queryset=TitleGenre.objects.all(),
                                           fields=('title', 'genre'))]
 

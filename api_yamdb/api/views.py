@@ -29,7 +29,7 @@ class TitletViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = PageNumberPagination
-    filter_class = TitleFilterSet
+    filterset_class = TitleFilterSet
 
     def get_serializer_class(self):
         """

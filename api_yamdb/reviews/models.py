@@ -1,11 +1,10 @@
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import IntegrityError, models
 
-User = get_user_model() # поменять!
+User = get_user_model()
 
 
 class Category(models.Model):
@@ -15,6 +14,9 @@ class Category(models.Model):
     def __str__(self):
         return self.slug
 
+    class Meta:
+        ordering = ['name']
+
 
 class Genre(models.Model):
     name = models.CharField(max_length=256)
@@ -22,6 +24,9 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.slug
+
+    class Meta:
+        ordering = ['name']
 
 
 class Title(models.Model):
@@ -38,6 +43,9 @@ class Title(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['category', 'name']
+
 
 class TitleGenre(models.Model):
     title = models.ForeignKey(
@@ -49,10 +57,12 @@ class TitleGenre(models.Model):
         return f'{self.title}, жанр - {self.genre}'
 
     class Meta:
+        ordering = ['title', 'genre']
         constraints = [
             models.UniqueConstraint(fields=["title", "genre"],
                                     name='unique_genre')
         ]
+
 
 class Review(models.Model):
     title = models.ForeignKey(
@@ -69,7 +79,8 @@ class Review(models.Model):
         return self.text
 
     def unique_review(self):
-        if Review.objects.filter(title=self.title, author=self.author).exists():
+        if Review.objects.filter(
+           title=self.title, author=self.author).exists():
             raise IntegrityError(
                 'нельзя создавать два отзывы на одно произведения')
 
@@ -78,6 +89,9 @@ class Review(models.Model):
             return super().save(*args, **kwargs)
         self.unique_review()
         return super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['title', 'author']
 
 
 class Comment(models.Model):
