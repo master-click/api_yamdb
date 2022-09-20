@@ -136,6 +136,6 @@ http://127.0.0.1:8000/admin
 
 ### Распределение задач в команде ###
 
-* Макарьев Никита | Github: https://github.com/NikitaMackariev6 |  Кастомная модель User, регистрация и аутентификация пользователей.
+* Макарьев Никита | Github: https://github.com/NikitaMackariev |  Кастомная модель User, регистрация и аутентификация пользователей.
 * Ольга Батова | Github:https://github.com/master-clickt | Жанры (Genres) и произведения (Titles): модели, представления и эндпойнты для них.
 * Максим Зимаков | Github: https://github.com/Maxim-Zimas | Отзывы (Review) и комментарии (Comments): модели, представления, настройка эндпойнтов. 
