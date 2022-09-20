@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractUser
 
 from django.db import models
 
+from .validators import validate_username
+
 
 class User(AbstractUser):
     """Добавление дополнительных полей."""
@@ -25,6 +27,8 @@ class User(AbstractUser):
                            blank=True,
                            max_length=255
                            )
+    username = models.CharField(max_length=30, unique=True,
+                                validators=[validate_username])
 
     class Meta:
         ordering = ('role',)
