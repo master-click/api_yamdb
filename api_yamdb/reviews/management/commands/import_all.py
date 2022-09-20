@@ -36,7 +36,10 @@ class Command(BaseCommand):
             for row in csv_reader:
                 row_id = row.pop('id')
                 try:
-                    obj = model.objects.get(**row)
+                    obj = model.objects.get(id=row_id)
+                    # через id сделал, почему была проблема для ревью и комментария,
+                    # по всем данным, а не только по id при повторном нажатии выходила,
+                    # ошибка по тому что нарушена уникальность id
                     self.stdout.write(self.style.SUCCESS(
                         f'данные уже в базе {filename} - {row}'))
                 except model.DoesNotExist:
