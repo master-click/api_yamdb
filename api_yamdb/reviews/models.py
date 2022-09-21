@@ -7,7 +7,8 @@ from django.db import IntegrityError, models
 User = get_user_model()
 
 
-class Category(models.Model):
+class CategoryGenreBasemodel(models.Model):
+    """Абстрактная модель для моделей Категории и Жанра"""
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
 
@@ -16,17 +17,15 @@ class Category(models.Model):
 
     class Meta:
         ordering = ['name']
+        abstract = True
 
 
-class Genre(models.Model):
-    name = models.CharField(max_length=256)
-    slug = models.SlugField(max_length=50, unique=True)
+class Category(CategoryGenreBasemodel):
+    pass
 
-    def __str__(self):
-        return self.slug
 
-    class Meta:
-        ordering = ['name']
+class Genre(CategoryGenreBasemodel):
+    pass
 
 
 class Title(models.Model):
@@ -64,19 +63,24 @@ class TitleGenre(models.Model):
         ]
 
 
-class Review(models.Model):
-    title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='reviews')
+class ReviewCommentBasemodel(models.Model):
     text = models.TextField()
-    author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='reviews')
-    score = models.IntegerField(validators=[
-        MaxValueValidator(10), MinValueValidator(1)])
-    # можно default=10, но не нужно  валидация!
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
-    def __str__(self):   # на всякий случай
+    def __str__(self):
         return self.text
+
+    class Meta:
+        abstract = True
+
+
+class Review(ReviewCommentBasemodel):
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='reviews')
+    title = models.ForeignKey(
+        Title, on_delete=models.CASCADE, related_name='reviews')
+    score = models.IntegerField(validators=[
+        MaxValueValidator(10), MinValueValidator(1)])
 
     def unique_review(self):
         if Review.objects.filter(
@@ -94,16 +98,11 @@ class Review(models.Model):
         ordering = ['title', 'author']
 
 
-class Comment(models.Model):
-    text = models.TextField()
-    review = models.ForeignKey(
-        Review, on_delete=models.CASCADE, related_name='comments')
+class Comment(ReviewCommentBasemodel):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='comments')
-    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
-
-    def __str__(self):
-        return self.text
+    review = models.ForeignKey(
+        Review, on_delete=models.CASCADE, related_name='comments')
 
     class Meta:
         ordering = ['pub_date']

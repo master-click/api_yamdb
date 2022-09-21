@@ -5,7 +5,6 @@ from rest_framework.relations import SlugRelatedField
 from rest_framework.validators import UniqueTogetherValidator
 from reviews.models import Category, Comment, Genre, Review, Title, TitleGenre
 
-
 User = get_user_model()
 
 
@@ -21,15 +20,20 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-
     author = SlugRelatedField(slug_field='username',
                               read_only=True,
                               default=serializers.CurrentUserDefault())
 
+    class Meta:
+        model = Review
+        fields = ('id', 'text', 'author', 'score', 'pub_date',)
+        required_fields = ('text', 'score')
+
+
+class ReviewCreateSerializer(ReviewSerializer):
+
     def validate(self, data):
         request = self.context.get("request")
-        if request.method != 'POST':
-            return data
         title_id = int(self.context['view'].kwargs.get('title_id'))
         author = request.user
         if Review.objects.filter(title=title_id, author=author).exists():
@@ -37,11 +41,6 @@ class ReviewSerializer(serializers.ModelSerializer):
                 'Нельзя создавать больше 1 отзыва на произведение'
             )
         return data
-
-    class Meta:
-        model = Review
-        fields = ('id', 'text', 'author', 'score', 'pub_date',)
-        required_fields = ('text', 'score')
 
 
 class GenreSerializer(serializers.ModelSerializer):

@@ -6,12 +6,11 @@ from reviews.models import Category, Genre, Review, Title
 
 from .filtersets import TitleFilterSet
 from .mixins import CustomViewSet
-from .permissions import (IsAdminOrReadOnly,
-                          IsOwnerAdminModeratorOrReadOnly)
+from .permissions import IsAdminOrReadOnly, IsOwnerAdminModeratorOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer,
-                          TitleCreateSerializer, TitleSerializer,
-                          )
+                          GenreSerializer, ReviewCreateSerializer,
+                          ReviewSerializer, TitleCreateSerializer,
+                          TitleSerializer)
 
 
 class TitletViewSet(viewsets.ModelViewSet):
@@ -51,7 +50,6 @@ class GenreViewSet(CustomViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    serializer_class = ReviewSerializer
     pagination_class = PageNumberPagination
     permission_classes = (IsOwnerAdminModeratorOrReadOnly,)
 
@@ -68,6 +66,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user,
                         title=self.title_obj())
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return ReviewCreateSerializer
+        return ReviewSerializer
 
 
 class CommentViewSet(viewsets.ModelViewSet):
