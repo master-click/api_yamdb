@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, viewsets
+from rest_framework import filters, viewsets, permissions
 from rest_framework.pagination import PageNumberPagination
 from reviews.models import Category, Genre, Review, Title
 
@@ -14,18 +14,20 @@ from .serializers import (CategorySerializer, CommentSerializer,
 
 
 class TitletViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().order_by('year')
+    queryset = Title.objects.all()
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = PageNumberPagination
     filterset_class = TitleFilterSet
+
+    ordering = ('year',)
 
     def get_serializer_class(self):
         """
         Задает разные сериализаторы для создания, изменения
         и других действий
         """
-        if self.request.method in ('POST', 'PATCH',):
+        if self.request.method not in permissions.SAFE_METHODS:
             return TitleCreateSerializer
         return TitleSerializer
 
@@ -35,7 +37,7 @@ class CategoryViewSet(CustomViewSet):
     serializer_class = CategorySerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
-    search_fields = ("name",)
+    search_fields = ('name',)
     lookup_field = 'slug'
 
 
@@ -53,19 +55,17 @@ class ReviewViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     permission_classes = (IsOwnerAdminModeratorOrReadOnly,)
 
-    def title_obj(self):
+    def get_queryset(self):
         title_id = self.kwargs.get('title_id')
         title = get_object_or_404(Title, pk=title_id)
-        return title
-
-    def get_queryset(self):
-        title = self.title_obj()
-        queryset = title.reviews.select_related('author').all()
+        queryset = title.reviews.all()
         return queryset
 
     def perform_create(self, serializer):
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, pk=title_id)
         serializer.save(author=self.request.user,
-                        title=self.title_obj())
+                        title=title)
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

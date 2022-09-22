@@ -38,6 +38,7 @@ class Title(models.Model):
     genre = models.ManyToManyField(
         Genre, through='TitleGenre')
     description = models.TextField(blank=True, null=True)
+    rating = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name

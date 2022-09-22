@@ -15,7 +15,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('id', 'text', 'author', 'pub_date')  # без review
+        fields = ('id', 'text', 'author', 'pub_date')
         required_fields = ('text',)
 
 
@@ -34,7 +34,7 @@ class ReviewCreateSerializer(ReviewSerializer):
 
     def validate(self, data):
         request = self.context.get("request")
-        title_id = int(self.context['view'].kwargs.get('title_id'))
+        title_id = self.context['view'].kwargs.get('title_id')
         author = request.user
         if Review.objects.filter(title=title_id, author=author).exists():
             raise serializers.ValidationError(
@@ -62,16 +62,20 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class TitleGenreSerializer(serializers.ModelSerializer):
-    title = SlugRelatedField(slug_field='title',
-                             queryset=Review.objects.all())
-    genre = SlugRelatedField(slug_field='slug',
-                             queryset=Genre.objects.all())
+    title = SlugRelatedField(
+        slug_field='title',
+        queryset=Review.objects.all()
+    )
+    genre = SlugRelatedField(
+        slug_field='slug',
+        queryset=Genre.objects.all()
+    )
     validators = [UniqueTogetherValidator(queryset=TitleGenre.objects.all(),
                                           fields=('title', 'genre'))]
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    rating = serializers.SerializerMethodField(default=0, read_only=True)
+    rating = serializers.SerializerMethodField(read_only=True)
     genre = GenreSerializer(many=True)
     category = CategorySerializer(many=False)
 
@@ -98,7 +102,7 @@ class TitleCreateSerializer(serializers.ModelSerializer):
         required_fields = ('name', 'year', 'genre', 'category')
 
     def to_representation(self, instance):
-        response = super().to_representation(instance)  # доразобраться
+        response = super().to_representation(instance)
         response['category'] = CategorySerializer(instance.category).data
         for entry in instance.genre.all():
             genre = GenreSerializer(entry).data
